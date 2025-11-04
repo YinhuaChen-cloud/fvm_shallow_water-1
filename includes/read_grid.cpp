@@ -59,6 +59,7 @@ void read_grid(sw &sw)
                 for (int i = 0; i < sw.vertices.size(); i++)
                 {
                     // 如果距离小于阈值1e-6，认为是同一顶点
+                    // 矢量减法，取模(长度)
                     if ((sw.vertices[i] - vertex).norm() < 1e-6)
                     {
                         vertices.push_back(i);  // 使用已有顶点的索引
@@ -97,7 +98,7 @@ void read_grid(sw &sw)
         // 每个三角形有3条边，每列代表一条边：
         // row 0: 边的第一个顶点索引
         // row 1: 边的第二个顶点索引
-        // row 2: 左侧单元索引
+        // row 2: 左侧单元索引 (指的是在cells数组中的“左侧(较小)”索引)
         // row 3: 处理标记（0=未处理，1=已处理）
         Eigen::MatrixXd edges;
         edges = Eigen::MatrixXd::Zero(4, 3 * sw.N_cells);
