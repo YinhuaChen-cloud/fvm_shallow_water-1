@@ -35,7 +35,10 @@ int main(int argc, char *argv[])
 	double t;                                   // 当前物理时间
 
 	sw.case_name = argv[1];
+	// 设置迭代收敛容限为 1e-6（通常是相对残差阈值）。
+	// 迭代器在估计的误差/残差低于该阈值时会停止，得到“足够精确”的近似解。
 	solver.setTolerance(1e-6);
+	// 设置允许的最大迭代次数为 20。即使还未达到容限，也不会超过这个迭代上限，防止无限循环
 	solver.setMaxIterations(20);
 	t = 0.0;
 
@@ -44,6 +47,14 @@ int main(int argc, char *argv[])
 
 	std::cout << "Reading config...";
 
+	// 读取 <case_name>.conf 配置文件（case_name 由命令行参数传入）
+	// 解析并加载关键参数，包括：
+	// dt - 时间步长
+	// N_timesteps - 总时间步数
+	// output_frequency - 输出频率
+	// riemann_solver - Riemann求解器类型（如Lax-Friedrichs或Roe）
+	// integrator - 时间积分格式（0=欧拉, 1=RK2, 2=RK4）
+	// implicit - 是否使用隐式方法（0=显式, 1=隐式）
 	read_config(sw);
 
 	std::cout << "Done!" << std::endl;
@@ -62,6 +73,20 @@ int main(int argc, char *argv[])
 
 	std::cout << "Reading grid...";
 
+	// 从网格文件中读取计算网格的几何信息，包括：
+	// - 顶点（vertices） - 网格节点的坐标
+	// - 单元（cells） - 控制体（计算单元），存储几何信息（中心坐标、面积等）
+	// - 边（edges） - 单元之间的界面，存储法向量、长度、相邻单元等信息
+	// 作用：
+	// 1.构建有限体积法所需的离散化几何结构
+	// 2.为后续的数值通量计算和残差计算准备空间离散信息
+	// 3.建立单元之间的邻接关系（用于计算界面通量）
+	// 输出信息：
+	// 读取完成后会显示网格规模：
+	// - N_vertices - 顶点总数
+	// - N_cells - 单元总数
+	// - N_edges - 边总数
+	// 这是有限体积法的基础步骤，网格定义了求解域的离散化方式。
 	read_grid(sw);
 
 	std::cout << "Done!" << std::endl;
